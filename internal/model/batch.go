@@ -46,7 +46,7 @@ func NewBatch(id, name string) (*Batch, error) {
 // Transition 推进批次状态。目标状态必须为当前状态的后继。
 func (b *Batch) Transition(target BatchStatus) error {
 	allowed := map[BatchStatus][]BatchStatus{
-		BatchRegistered:  {BatchReady, BatchSealed},
+		BatchRegistered:  {BatchReady},
 		BatchReady:       {BatchIndexing, BatchReady},
 		BatchIndexing:    {BatchPublishable, BatchIndexing},
 		BatchPublishable: {BatchSealed, BatchReady},
