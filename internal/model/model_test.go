@@ -43,3 +43,22 @@ func TestNewPeakRejectsNonFiniteCoordinates(t *testing.T) {
 		}
 	}
 }
+
+func TestRestoreClearsPriorIndexAssignment(t *testing.T) {
+	p, err := NewPeak("p1", "b1", 1, 1, 2, 3, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := p.AssignMiller("l1", 2, -1, 3); err != nil {
+		t.Fatal(err)
+	}
+	if err := p.Exclude(); err != nil {
+		t.Fatal(err)
+	}
+	if err := p.Restore(); err != nil {
+		t.Fatal(err)
+	}
+	if p.Status != PeakRaw || p.LatticeID != "" || p.MillerH != 0 || p.MillerK != 0 || p.MillerL != 0 {
+		t.Fatalf("restored peak retained assignment: %+v", p)
+	}
+}

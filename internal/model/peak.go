@@ -103,6 +103,8 @@ func (p *Peak) Restore() error {
 		return fmt.Errorf("%w: only excluded peak can be restored", ErrInvalidState)
 	}
 	p.Status = PeakRaw
+	p.MillerH, p.MillerK, p.MillerL = 0, 0, 0
+	p.LatticeID = ""
 	p.UpdatedAt = time.Now().UTC()
 	return nil
 }
