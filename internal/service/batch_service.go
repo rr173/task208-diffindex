@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"math"
 
 	"task208-diffindex/internal/model"
 	"task208-diffindex/internal/store"
@@ -110,6 +111,10 @@ func (s *BatchService) ImportPeaks(batchID string, inputs []PeakInput) (*ImportR
 		}
 		if in.Intensity < 0 {
 			return nil, model.InvalidInputf("intensity must be non-negative, got %f", in.Intensity)
+		}
+		if math.IsNaN(in.XMM) || math.IsInf(in.XMM, 0) || math.IsNaN(in.YMM) || math.IsInf(in.YMM, 0) ||
+			math.IsNaN(in.ZMM) || math.IsInf(in.ZMM, 0) {
+			return nil, model.InvalidInputf("peak coordinates must be finite")
 		}
 		if _, err := s.peaks.GetBySeq(batchID, in.Seq); err == nil {
 			res.Skipped++

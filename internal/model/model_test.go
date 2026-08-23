@@ -1,6 +1,9 @@
 package model
 
-import "testing"
+import (
+	"math"
+	"testing"
+)
 
 func TestBatchLifecycleRejectsDirectSeal(t *testing.T) {
 	b, err := NewBatch("b1", "test batch")
@@ -30,5 +33,13 @@ func TestIndexVersionCopiesExcludedPeaks(t *testing.T) {
 	excluded[0] = "changed"
 	if v.ExcludedPeaks[0] != "p1" {
 		t.Fatalf("version snapshot was mutated through input slice: %v", v.ExcludedPeaks)
+	}
+}
+
+func TestNewPeakRejectsNonFiniteCoordinates(t *testing.T) {
+	for _, coordinate := range []float64{math.NaN(), math.Inf(1), math.Inf(-1)} {
+		if _, err := NewPeak("p1", "b1", 1, coordinate, 0, 0, 1); err == nil {
+			t.Fatalf("coordinate %v should be rejected", coordinate)
+		}
 	}
 }

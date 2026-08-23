@@ -92,6 +92,7 @@ func (d *DB) migrate() error {
 			detector_distance_mm REAL NOT NULL,
 			beam_center_x_mm     REAL NOT NULL,
 			beam_center_y_mm     REAL NOT NULL,
+			beam_center_z_mm     REAL NOT NULL,
 			oscillation_range_deg REAL NOT NULL,
 			detector_two_theta_deg REAL NOT NULL,
 			updated_at           TEXT NOT NULL

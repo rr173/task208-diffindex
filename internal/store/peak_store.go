@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"math"
 
 	"task208-diffindex/internal/model"
 )
@@ -16,6 +17,10 @@ func NewPeakStore(db *DB) *PeakStore { return &PeakStore{db: db} }
 
 // Insert 插入峰。批次内 seq 唯一（幂等键）。
 func (s *PeakStore) Insert(p *model.Peak) error {
+	if math.IsNaN(p.XMM) || math.IsInf(p.XMM, 0) || math.IsNaN(p.YMM) || math.IsInf(p.YMM, 0) ||
+		math.IsNaN(p.ZMM) || math.IsInf(p.ZMM, 0) {
+		return model.InvalidInputf("peak coordinates must be finite")
+	}
 	_, err := s.db.SQL().Exec(
 		`INSERT INTO peaks
 		 (id, batch_id, seq, x_mm, y_mm, z_mm, intensity, status, miller_h, miller_k, miller_l,

@@ -115,18 +115,19 @@ func NewGeometryStore(db *DB) *GeometryStore { return &GeometryStore{db: db} }
 func (s *GeometryStore) Upsert(batchID string, g model.ExperimentGeometry) error {
 	_, err := s.db.SQL().Exec(
 		`INSERT INTO geometries
-		 (batch_id, wavelength_angstrom, detector_distance_mm, beam_center_x_mm, beam_center_y_mm,
+		 (batch_id, wavelength_angstrom, detector_distance_mm, beam_center_x_mm, beam_center_y_mm, beam_center_z_mm,
 		  oscillation_range_deg, detector_two_theta_deg, updated_at)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 		 ON CONFLICT(batch_id) DO UPDATE SET
 		   wavelength_angstrom=excluded.wavelength_angstrom,
 		   detector_distance_mm=excluded.detector_distance_mm,
 		   beam_center_x_mm=excluded.beam_center_x_mm,
 		   beam_center_y_mm=excluded.beam_center_y_mm,
+		   beam_center_z_mm=excluded.beam_center_z_mm,
 		   oscillation_range_deg=excluded.oscillation_range_deg,
 		   detector_two_theta_deg=excluded.detector_two_theta_deg,
 		   updated_at=excluded.updated_at`,
-		batchID, g.WavelengthAngstrom, g.DetectorDistanceMM, g.BeamCenterXMM, g.BeamCenterYMM,
+		batchID, g.WavelengthAngstrom, g.DetectorDistanceMM, g.BeamCenterXMM, g.BeamCenterYMM, g.BeamCenterZMM,
 		g.OscillationRangeDeg, g.DetectorTwoThetaDeg, ts(nowUTC()),
 	)
 	if err != nil {
@@ -138,12 +139,12 @@ func (s *GeometryStore) Upsert(batchID string, g model.ExperimentGeometry) error
 // Get 取某批次的实验几何。
 func (s *GeometryStore) Get(batchID string) (*model.ExperimentGeometry, error) {
 	row := s.db.SQL().QueryRow(
-		`SELECT wavelength_angstrom, detector_distance_mm, beam_center_x_mm, beam_center_y_mm,
+		`SELECT wavelength_angstrom, detector_distance_mm, beam_center_x_mm, beam_center_y_mm, beam_center_z_mm,
 		        oscillation_range_deg, detector_two_theta_deg
 		 FROM geometries WHERE batch_id = ?`, batchID)
 	var g model.ExperimentGeometry
 	if err := row.Scan(&g.WavelengthAngstrom, &g.DetectorDistanceMM, &g.BeamCenterXMM, &g.BeamCenterYMM,
-		&g.OscillationRangeDeg, &g.DetectorTwoThetaDeg); err != nil {
+		&g.BeamCenterZMM, &g.OscillationRangeDeg, &g.DetectorTwoThetaDeg); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, model.ErrNotFound
 		}

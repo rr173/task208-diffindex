@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -50,6 +51,10 @@ func NewPeak(id, batchID string, seq int, xMM, yMM, zMM, intensity float64) (*Pe
 	}
 	if intensity < 0 {
 		return nil, InvalidInputf("intensity must be non-negative, got %f", intensity)
+	}
+	if math.IsNaN(xMM) || math.IsInf(xMM, 0) || math.IsNaN(yMM) || math.IsInf(yMM, 0) ||
+		math.IsNaN(zMM) || math.IsInf(zMM, 0) {
+		return nil, InvalidInputf("peak coordinates must be finite")
 	}
 	now := time.Now().UTC()
 	return &Peak{

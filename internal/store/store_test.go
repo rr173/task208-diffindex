@@ -22,7 +22,7 @@ func TestBatchAndPeakPersistAcrossReopen(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := NewGeometryStore(db).Upsert("b1", model.ExperimentGeometry{
-		WavelengthAngstrom: 1.54, DetectorDistanceMM: 100, OscillationRangeDeg: 1,
+		WavelengthAngstrom: 1.54, DetectorDistanceMM: 100, BeamCenterZMM: 12.5, OscillationRangeDeg: 1,
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -49,5 +49,9 @@ func TestBatchAndPeakPersistAcrossReopen(t *testing.T) {
 	gotPeak, err := NewPeakStore(db).GetBySeq("b1", 1)
 	if err != nil || gotPeak.ID != "p1" {
 		t.Fatalf("reopened peak = %+v, err=%v", gotPeak, err)
+	}
+	geometry, err := NewGeometryStore(db).Get("b1")
+	if err != nil || geometry.BeamCenterZMM != 12.5 {
+		t.Fatalf("reopened geometry = %+v, err=%v", geometry, err)
 	}
 }
