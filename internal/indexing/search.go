@@ -23,9 +23,14 @@ type PeakVector struct {
 }
 
 // BuildPeakVectors 把批次内未被排除的峰转换为倒易矢量列表（按散射角升序）。
+// 被排除（遮挡/杂散）的峰在此被隔离出索引链路：它们不进入晶格搜索、Miller 分配、
+// 残差统计或缺峰诊断的任何派生结果。
 func BuildPeakVectors(g model.ExperimentGeometry, peaks []*model.Peak) []PeakVector {
 	out := make([]PeakVector, 0, len(peaks))
 	for _, p := range peaks {
+		if p.Status == model.PeakExcluded {
+			continue
+		}
 		q := geometry.ReciprocalVector(g, p.XMM, p.YMM, p.ZMM)
 		tt, _ := geometry.ScatteringAngle(g, p.XMM, p.YMM, p.ZMM)
 		out = append(out, PeakVector{PeakID: p.ID, Seq: p.Seq, Q: q, XMM: p.XMM, YMM: p.YMM, ZMM: p.ZMM, TwoTheta: tt})

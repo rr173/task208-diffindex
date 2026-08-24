@@ -75,8 +75,9 @@ func (s *VersionService) Get(id string) (*model.IndexVersion, error) {
 }
 
 // excludedIDs 收集批次内被排除峰的 ID。
+// 仅纳入处于 PeakExcluded 状态的峰，确保版本快照里的排除清单与索引链路隔离边界一致。
 func (s *VersionService) excludedIDs(batchID string) ([]string, error) {
-	excluded, err := s.peaks.ListByBatch(batchID)
+	excluded, err := s.peaks.ListByStatus(batchID, model.PeakExcluded)
 	if err != nil {
 		return nil, err
 	}

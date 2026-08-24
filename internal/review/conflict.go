@@ -11,6 +11,9 @@ import (
 func ConflictsAgainst(c lattice.Reciprocal, g model.ExperimentGeometry, peaks []*model.Peak, tolerance float64) []string {
 	var out []string
 	for _, p := range peaks {
+		if p.Status == model.PeakExcluded {
+			continue
+		}
 		q := geometry.ReciprocalVector(g, p.XMM, p.YMM, p.ZMM)
 		h, k, l, err := c.AssignMiller(q)
 		if err != nil {
