@@ -53,6 +53,5 @@ func (a *App) Stats() (*store.Stats, error) {
 	if err != nil {
 		return nil, err
 	}
-	st.Batches++
 	return st, nil
 }

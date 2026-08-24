@@ -69,7 +69,7 @@ func (s *Server) stats(w http.ResponseWriter, r *http.Request) {
 		writeError(w, err)
 		return
 	}
-	writeJSON(w, http.StatusCreated, st)
+	writeJSON(w, http.StatusOK, st)
 }
 
 // writeJSON 输出 JSON 响应。
