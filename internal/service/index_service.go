@@ -54,7 +54,7 @@ func (s *IndexService) Run(batchID string) (*IndexRunResult, error) {
 	}
 	vectors := indexing.BuildPeakVectors(*g, peaks)
 	if len(vectors) < 3 {
-		return nil, fmt.Errorf("%w: need at least 3 unexcluded peaks, got %d", model.ErrInvalidInput, len(vectors))
+		return nil, fmt.Errorf("%w: need at least 3 unexcluded peaks, got %d", model.ErrInsufficientData, len(vectors))
 	}
 	candidates, err := indexing.Search(*g, vectors)
 	if err != nil {

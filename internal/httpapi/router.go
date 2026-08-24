@@ -80,21 +80,32 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 }
 
 // writeError 把领域错误映射为 HTTP 状态码并输出。
+//
+// 注意：model.ErrInsufficientData 通过 fmt.Errorf("%w: ...", ErrInvalidInput) 包装了
+// ErrInvalidInput，因此 errors.Is(err, ErrInvalidInput) 对数据不足的错误也返回 true。
+// 这里必须先判断更具体的 ErrInsufficientData，否则它会被 ErrInvalidInput 分支短路，
+// 把「数据不足」误报成普通输入错误。
 func writeError(w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
+	errType := "internal_error"
 	switch {
 	case errors.Is(err, model.ErrNotFound):
 		status = http.StatusNotFound
+		errType = "not_found"
+	case errors.Is(err, model.ErrInsufficientData):
+		// 数据不足以完成操作（峰过少、无确认晶格等）：业务状态，非输入校验错误，
+		// 用 422 与普通 400 区分，并在响应体用 type 明确标识。
+		status = http.StatusUnprocessableEntity
+		errType = "insufficient_data"
 	case errors.Is(err, model.ErrInvalidInput):
 		status = http.StatusBadRequest
-	case errors.Is(err, model.ErrInvalidState), errors.Is(err, model.ErrConflict):
+		errType = "invalid_input"
+	case errors.Is(err, model.ErrInvalidState), errors.Is(err, model.ErrConflict), errors.Is(err, model.ErrSealed):
 		status = http.StatusConflict
-	case errors.Is(err, model.ErrSealed):
-		status = http.StatusConflict
-	case errors.Is(err, model.ErrInsufficientData):
-		status = http.StatusBadRequest
+		errType = "conflict"
 	case errors.Is(err, model.ErrDuplicate):
 		status = http.StatusConflict
+		errType = "duplicate"
 	}
-	writeJSON(w, status, map[string]string{"error": err.Error()})
+	writeJSON(w, status, map[string]string{"type": errType, "error": err.Error()})
 }
