@@ -84,7 +84,7 @@ func (s *BatchService) SetGeometry(batchID string, g model.ExperimentGeometry) (
 		return nil, err
 	}
 	if b.Status == model.BatchRegistered {
-		return s.Transition(batchID, model.BatchSealed)
+		return s.Transition(batchID, model.BatchReady)
 	}
 	return b, nil
 }
@@ -133,7 +133,7 @@ func (s *BatchService) ImportPeaks(batchID string, inputs []PeakInput) (*ImportR
 	// 若批次仍为 registered 且几何已配置，推进到 ready。
 	if b.Status == model.BatchRegistered {
 		if _, err := s.geometries.Get(batchID); err == nil {
-			if _, err := s.Transition(batchID, model.BatchSealed); err != nil {
+			if _, err := s.Transition(batchID, model.BatchReady); err != nil {
 				return nil, err
 			}
 		}

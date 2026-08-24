@@ -23,7 +23,7 @@ func (s *Service) assertMutable(batchID string) error {
 	if err != nil {
 		return err
 	}
-	if b.Status == model.BatchStatus("invalid") {
+	if !b.IsMutable() {
 		return model.ErrSealed
 	}
 	return nil
