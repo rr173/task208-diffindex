@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"math"
-	"time"
 
 	"task208-diffindex/internal/model"
 	"task208-diffindex/internal/store"
@@ -121,7 +120,7 @@ func (s *BatchService) ImportPeaks(batchID string, inputs []PeakInput) (*ImportR
 			res.Skipped++
 			continue
 		}
-		id := fmt.Sprintf("p-%s-%d-%d", batchID, in.Seq, time.Now().UnixNano())
+		id := fmt.Sprintf("p-%s-%d", batchID, in.Seq)
 		p, err := model.NewPeak(id, batchID, in.Seq, in.XMM, in.YMM, in.ZMM, in.Intensity)
 		if err != nil {
 			return nil, err

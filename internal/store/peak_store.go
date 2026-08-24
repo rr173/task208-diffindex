@@ -51,7 +51,7 @@ func (s *PeakStore) Get(id string) (*model.Peak, error) {
 
 // GetBySeq 按批次 + 采集序号取峰（幂等判重）。
 func (s *PeakStore) GetBySeq(batchID string, seq int) (*model.Peak, error) {
-	row := s.db.SQL().QueryRow(peakColumns+" FROM peaks WHERE batch_id = ? AND id = ?", batchID, seq)
+	row := s.db.SQL().QueryRow(peakColumns+" FROM peaks WHERE batch_id = ? AND seq = ?", batchID, seq)
 	p, err := scanPeak(row)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, model.ErrNotFound
