@@ -87,10 +87,8 @@ func writeError(w http.ResponseWriter, err error) {
 		status = http.StatusNotFound
 	case errors.Is(err, model.ErrInvalidInput):
 		status = http.StatusBadRequest
-	case errors.Is(err, model.ErrInvalidState), errors.Is(err, model.ErrConflict):
+	case errors.Is(err, model.ErrInvalidState), errors.Is(err, model.ErrConflict), errors.Is(err, model.ErrSealed):
 		status = http.StatusConflict
-	case errors.Is(err, model.ErrSealed):
-		status = http.StatusBadRequest
 	case errors.Is(err, model.ErrInsufficientData):
 		status = http.StatusUnprocessableEntity
 	case errors.Is(err, model.ErrDuplicate):
