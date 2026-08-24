@@ -60,8 +60,10 @@ func (s *IndexService) Run(batchID string) (*IndexRunResult, error) {
 	if err != nil {
 		return nil, err
 	}
+	// 三峰共线/共面等情形下无法选出非共面基，Search 会返回空候选。
+	// 这是“数据不足”而非崩溃：稳定返回领域错误，供 HTTP 层映射为 422。
 	if len(candidates) == 0 {
-		_ = candidates[0]
+		return nil, fmt.Errorf("%w: no lattice basis could be formed from %d peaks (peaks likely collinear/coplanar)", model.ErrInsufficientData, len(vectors))
 	}
 
 	res := &IndexRunResult{CandidateCount: len(candidates), TopScore: -1}
