@@ -54,3 +54,35 @@ func TestLiveRouterHealthAndCreateBatch(t *testing.T) {
 		t.Fatalf("created batch = %+v", got)
 	}
 }
+
+func TestLiveRouterGetMissingBatchReturnsNotFound(t *testing.T) {
+	db, err := store.Open(t.TempDir() + "/router-missing.db")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	app, err := service.New(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	srv := httptest.NewServer(New(app).Handler())
+	defer srv.Close()
+
+	resp, err := http.Get(srv.URL + "/api/batches/no-such-batch")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("get missing batch status = %d, want %d", resp.StatusCode, http.StatusNotFound)
+	}
+	var body struct {
+		Error string `json:"error"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		t.Fatal(err)
+	}
+	if body.Error == "" {
+		t.Fatalf("get missing batch body has no error message: %+v", body)
+	}
+}

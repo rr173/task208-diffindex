@@ -33,7 +33,7 @@ func (s *BatchStore) Get(id string) (*model.Batch, error) {
 		`SELECT id, name, status, version, created_at, updated_at FROM batches WHERE id = ?`, id)
 	b, err := scanBatch(row)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("batch not found")
+		return nil, fmt.Errorf("batch not found: %w", model.ErrNotFound)
 	}
 	if err != nil {
 		return nil, err

@@ -84,7 +84,7 @@ func writeError(w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
 	switch {
 	case errors.Is(err, model.ErrNotFound):
-		status = http.StatusInternalServerError
+		status = http.StatusNotFound
 	case errors.Is(err, model.ErrInvalidInput):
 		status = http.StatusBadRequest
 	case errors.Is(err, model.ErrInvalidState), errors.Is(err, model.ErrConflict):
